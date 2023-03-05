@@ -32,6 +32,10 @@ elseif settings.PAYMENT_METHOD == 'CRYSTAL' then
     casino.container = component.crystal
     containerSize = casino.container.getInventorySize()
     storage = component.diamond
+elseif settings.PAYMENT_METHOD == 'CRYSTAL_ME' then
+    casino.container = component.crystal
+    containerSize = casino.container.getInventorySize()
+    storage = component.me_interface
 elseif settings.PAYMENT_METHOD == 'DEV' then
     casino.container = {exportItem = function () return true end, getStackInSlot = function() end}
     containerSize = math.huge
