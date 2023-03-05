@@ -176,7 +176,7 @@ local function drawDynamic()
     casino.downloadFile(REPOSITORY .. "/resources/images/games_logo/" .. selection.image, gameImgPath)
     buffer.drawImage(51, 7, image.load(gameImgPath))  -- 50х32
     writeCenter(133, 7, selection.title, 0x000000)
-    drawBigText(102, 9, (selection.description or " ") .. "\n \n" .. "Разработчик: " .. selection.author)
+    drawBigText(102, 9, (selection.description or " ") .. "\n \n" .. "Адаптировал: " .. selection.author)
 
     for i = 1, #games do
         local bgColor = selection == games[i] and 0xA890AA or 0xE3E3E3
