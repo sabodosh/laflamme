@@ -1,6 +1,6 @@
 local settings = {}
 
-settings.REPOSITORY = "https://raw.githubusercontent.com/Krobys/casino/master"
+settings.REPOSITORY = "https://raw.githubusercontent.com/Krobys/casi/master"
 settings.TITLE = "Приветствуем ваc у нас в казино"
 settings.ADMINS = { "Krobys" }
 
