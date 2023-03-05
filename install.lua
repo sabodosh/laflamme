@@ -1,6 +1,6 @@
 --local REPOSITORY = "https://raw.githubusercontent.com/krovyaka/OpenComputers-Casino/master"
 --https://username:password@github.com/username/repo_name.git
-local REPOSITORY = "https://Krobys:12asQwzx.@github.com/Krobys/OpenComputers-Casino.git/master"
+local REPOSITORY = "https://raw.githubusercontent.com/Krobys/cas/master"
 
 local shell = require("shell")
 shell.execute("wget -fq " .. REPOSITORY .. "/launcher.lua /home/1.lua")
