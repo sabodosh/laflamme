@@ -1,5 +1,3 @@
---local REPOSITORY = "https://raw.githubusercontent.com/krovyaka/OpenComputers-Casino/master"
---https://username:password@github.com/username/repo_name.git
 local REPOSITORY = "https://raw.githubusercontent.com/Krobys/cas/master"
 
 local shell = require("shell")
