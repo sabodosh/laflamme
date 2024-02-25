@@ -75,168 +75,190 @@ local function drawStatic()
     buffer.drawRectangle(75, 25, 36, 3,  0x34a513, 0xffffff, ' ')
     buffer.drawRectangle(47, 18, 13, 3,  0xff0000, 0xffffff, ' ')
     buffer.drawRectangle(3,  2,  8,  19, 0xffb109, 0xffffff, ' ')
-    buffer.drawRectangle(3,  22, 108,9, 0x34a513, 0xffffff, ' ')
-    buffer.drawRectangle(2,  1,  1,  30, 0x000000, 0xffffff, ' ')
-    buffer.drawRectangle(111,1,  1,  30, 0x000000, 0xffffff, ' ')
-    buffer.drawRectangle(3,  1,  108,1, 0x000000, 0xffffff, ' ')
-    buffer.drawRectangle(3,  30, 108,1, 0x000000, 0xffffff, ' ')
+    buffer.drawRectangle(3,  9,  8,  5,  0xffda54, 0xffffff, ' ')
+    buffer.drawRectangle(61, 18, 13, 3,  0x000000, 0xffffff, ' ')
+    buffer.drawRectangle(3,  22, 71, 10, 0xaaaaaa, 0xffffff, ' ')
+    buffer.drawRectangle(3,  23, 71, 9,  0x002f15, 0xffffff, " ")
+    buffer.drawRectangle(75, 22, 36, 1,  0xaaaaaa, 0xffffff, ' ')
+    buffer.drawRectangle(75, 23, 36, 1,  0x002f15, 0xffffff, ' ')
+    buffer.drawText(89, 26, 0xffffff, "Крутить")
+    buffer.drawText(90, 30, 0xffffff, "Выход")
+    buffer.drawText(50, 19, 0xffffff, "Красное")
+    buffer.drawText(64, 19, 0xffffff, "Чёрное")
+    buffer.drawText(4,  22, 0x000000, "Вывод:")
+    buffer.drawText(76, 22, 0x000000, "Текущая валюта:")
+    buffer.drawText(76, 23, 0xffffff, casino.getCurrency().name or "")
     buffer.drawChanges()
 end
 
 local function Roll()
-    local time = os.time()
-    for i = 1, 10 do
-        math.randomseed(time + i)
-        local rand = math.random(0, 37)
-        for i = 1, #wheel do
-            if (rand == wheel[i]) then
-                return wheel[i]
-            end
+    local current = math.random(1, 35)
+    for i = 1, math.random(30, 50) do
+        current = current + 1
+        if (current == 38) then
+            current = 1
         end
+        drawNumber(4, 2, wheel[current + 4])
+        drawNumber(4, 6, wheel[current + 3])
+        drawNumber(4, 10, wheel[current + 2])
+        drawNumber(4, 14, wheel[current + 1])
+        drawNumber(4, 18, wheel[current])
+        buffer.drawChanges()
+        os.sleep(i / 140)
+    end
+    return wheel[current + 2]
+end
+
+local function getNumberClick(left, top)
+    if (top == 5) or (top == 9) or (left % 7 == 4) then
+        return 0
+    end
+    return (math.floor((left - 18) / 7) * 3) + math.floor(4 - (top - 1) / 4)
+end
+
+local function resetBets()
+    bets = {}
+    for i = 0, 36 do
+        bets[i] = 0
+    end
+end
+
+local function placeBet(number, money)
+    if (bets[number] == nil) then
+        bets[number] = money
+    else
+        bets[number] = bets[number] + money
+    end
+end
+
+local function placeBetByTable(t, money)
+    for i = 1, #t do
+        placeBet(t[i], money)
     end
 end
 
 local function fixClicks(left, top)
-    return (left >= 19 and left <= 107 and top >= 2 and top <= 29)
+    return not (
+        (left < 13) or (top < 2) or (left > 111) or (top > 20) or (left < 19 and top > 12) or (left == 18) or (left == 46) or (left == 102) or 
+        (top == 12) or (top == 17) or (((left > 18) and (left < 102) and (top > 1) and (top < 13)) and getNumberClick(left, top) == 0) or 
+        (top > 17 and top < 21 and (left == 32 or left == 46 or left == 60 or left == 74 or left == 88)) or (left > 101 and top > 12) or 
+        (left > 102 and (top == 5 or top == 9)))
 end
 
-local function getNumberClick(left, top)
-    local row = math.floor((left - 19) / 7) + 1
-    local col = math.floor((top - 2) / 4) * 3 + 3 - (top % 4)
-    return (row - 1) * 3 + col
-end
-
-local function placeBet(number, money)
-    bets[number] = (bets[number] or 0) + money
-end
-
-local function placeBetByTable(tbl, money)
-    for i = 1, #tbl do
-        placeBet(tbl[i], money)
-    end
-end
-
-local function clearBets()
-    bets = {}
-end
-
-local function redrawBets()
-    for number, money in pairs(bets) do
-        if (money > 0) then
-            drawNumber(19 + math.floor((number - 1) / 3) * 7, 2 + ((3 - number) % 3 * 4), number)
-        end
-    end
-end
-
-local function main()
-    drawStatic()
+drawStatic()
+message("")
+while true do
+    resetBets()
+    local ready = false
     while true do
-        local _, _, left, top, _, playerName = event.pull("touch")
-        if (left >= 103 and left <= 112 and top >= 14 and top <= 16) then
-            local money = 1
-            if (component.isKeyDown(56)) then
-                money = 10
+        local e, _, left, top, clickType, _ = event.pull("touch")
+        if (e ~= nil) then
+            local number, money = 0, 1 + clickType * 9
+            if left >= 75 and left <= 110 and top >= 29 and top <= 31 then
+                if ready then
+                    message("Сначала завершите игру")
+                else
+                    error("Exit by request")
+                end
             end
-            if (playerName == "CH4P3L") then
-                money = 100
-            end
-            local payed, reason = casino.takeMoney(money)
-            if payed then
-                clearBets()
-                message("Ставка на " .. money .. "$ принята")
-            else
-                message("Не удалось снять " .. money .. "$: " .. reason)
-            end
-            redrawBets()
-        elseif (left >= 3 and left <= 10 and top >= 1 and top <= 20) then
-            if (playerName == "CH4P3L") then
-                clearBets()
-                message("Все ставки сброшены")
-                redrawBets()
-            end
-        elseif (left >= 111 and left <= 112 and top >= 1 and top <= 5) then
-            local ready = false
-            if (playerName == "CH4P3L") then
-                ready = true
-            end
-            if not ready then
-                if #bets == 0 then
-                    message("Сначала сделайте ставку")
+            if left >= 75 and left <= 110 and top >= 25 and top <= 27 then
+                if ready then
+                    break
                 else
                     message("Недоступно до первой ставки")
                 end
-            else
-                break
             end
-        elseif fixClicks(left, top) then
-            local payed, reason = casino.takeMoney(money)
-            if payed then
-                ready = true
-                local number = 0
-                if (left > 18) and (left < 102) and (top > 1) and (top < 13) then
-                    number = getNumberClick(left, top)
+            if (fixClicks(left, top)) then
+                local payed, reason = casino.takeMoney(money)
+                if payed then
+                    ready = true
+                    if (left > 18) and (left < 102) and (top > 1) and (top < 13) then
+                        number = getNumberClick(left, top)
+                    end
+                    if number > 0 then
+                        placeBet(number, math.min(10, money * 36))
+                        message("Вы поставили " .. math.min(10, money) .. " на " .. number)
+                    elseif (left > 12) and (left < 18) and (top > 1) and (top < 13) then
+                        message("Вы поставили " .. math.min(10, money) .. " на 0")
+                        placeBet(0, math.min(10, money) * 36)
+                    elseif (left > 18) and (left < 46) and (top > 13) and (top < 17) then
+                        message("Вы поставили " .. math.min(10, money) .. " на первую 12")
+                        money = math.min(10, money) * 3
+                        for i = 1, 12 do
+                            placeBet(i, money)
+                        end
+                    elseif (left > 46) and (left < 74) and (top > 13) and (top < 17) then
+                        message("Вы поставили " .. math.min(10, money) .. " на вторую 12")
+                        money = math.min(10, money) * 3
+                        for i = 13, 24 do
+                            placeBet(i, money)
+                        end
+                    elseif (left > 74) and (left < 102) and (top > 13) and (top < 17) then
+                        message("Вы поставили " .. math.min(10, money) .. " на третью 12")
+                        money = math.min(10, money) * 3
+                        for i = 25, 36 do
+                            placeBet(i, money)
+                        end
+                    elseif (left > 18) and (left < 32) and (top > 17) and (top < 21) then
+                        message("Вы поставили " .. math.min(10, money) .. " на красное")
+                        placeBetByTable(red, math.min(10, money))
+                    elseif (left > 32) and (left < 46) and (top > 17) and (top < 21) then
+                        message("Вы поставили " .. math.min(10, money) .. " на чёрное")
+                        placeBetByTable(black, math.min(10, money))
+                    elseif (left > 74) and (left < 88) and (top > 17) and (top < 21) then
+                        message("Вы поставили " .. math.min(10, money) .. " на нечётное")
+                        for i = 1, 36, 2 do
+                            placeBet(i, math.min(10, money))
+                        end
+                    elseif (left > 88) and (left < 102) and (top > 17) and (top < 21) then
+                        message("Вы поставили " .. math.min(10, money) .. " на чётное")
+                        for i = 2, 36, 2 do
+                            placeBet(i, math.min(10, money))
+                        end
+                    elseif (left > 18) and (left < 46) and (top > 1) and (top < 13) then
+                        message("Вы поставили " .. math.min(10, money) .. " на " .. getNumberClick(left, top) .. " " .. getNumberPostfix(getNumberClick(left, top)))
+                        placeBet(getNumberClick(left, top), math.min(10, money) * 2)
+                    elseif (left > 61) and (left < 74) and (top > 17) and (top < 21) then
+                        message("Вы поставили " .. math.min(10, money) .. " на красное")
+                        placeBetByTable(red, math.min(10, money))
+                    else
+                        message("Вы поставили " .. math.min(10, money) .. " на чёрное")
+                        placeBetByTable(black, math.min(10, money))
+                    end
+                else
+                    message("Недостаточно валюты для ставки")
                 end
-                if number > 0 then
-                    placeBet(number, money * 36)
-                    message("Вы поставили " .. money .. " на " .. number)
-                elseif (left > 12) and (left < 18) and (top > 1) and (top < 13) then
-                    message("Вы поставили " .. money .. " на 0")
-                    placeBet(0, money * 36)
-                elseif (left > 18) and (left < 46) and (top > 13) and (top < 17) then
-                    message("Вы поставили " .. money .. " на первую 12")
-                    money = money * 3
-                    for i = 1, 12 do
-                        placeBet(i, money)
-                    end
-                elseif (left > 46) and (left < 74) and (top > 13) and (top < 17) then
-                    message("Вы поставили " .. money .. " на вторую 12")
-                    money = money * 3
-                    for i = 13, 24 do
-                        placeBet(i, money)
-                    end
-                elseif (left > 74) and (left < 102) and (top > 13) and (top < 17) then
-                    message("Вы поставили " .. money .. " на третью 12")
-                    money = money * 3
-                    for i = 25, 36 do
-                        placeBet(i, money)
-                    end
-                elseif (left > 18) and (left < 32) and (top > 17) and (top < 21) then
-                    message("Вы поставили " .. money .. " на 1 до 18")
-                    money = money * 2
-                    for i = 1, 18 do
-                        placeBet(i, money)
-                    end
-                elseif (left > 32) and (left < 46) and (top > 17) and (top < 21) then
-                    message("Вы поставили " .. money .. " на чётное")
-                    money = money * 2
-                    for i = 2, 36, 2 do
-                        placeBet(i, money)
-                    end
-                elseif (left > 46) and (left < 60) and (top > 17) and (top < 21) then
-                    message("Вы поставили " .. money .. " на красное")
-                    placeBetByTable(red, money * 2)
-                elseif (left > 60) and (left < 74) and (top > 17) and (top < 21) then
-                    message("Вы поставили " .. money .. " на чёрное")
-                    placeBetByTable(black, money * 2)
-                elseif (left > 74) and (left < 88) and (top > 17) and (top < 21) then
-                    message("Вы поставили " .. money .. " на нечётное")
-                    money = money * 2
-                    for i = 1, 35, 2 do
-                        placeBet(i, money)
-                    end
-                elseif (left > 88) and (left < 102) and (top > 17) and (top < 21) then
-                    message("Вы поставили " .. money .. " на 19 до 36")
-                    money = money * 2
-                    for i = 19, 36 do
-                        placeBet(i, money)
-                    end
-                end
-                redrawBets()
-            else
-                message("Не удалось снять " .. money .. "$: " .. reason)
             end
         end
     end
+    local result = Roll()
+    local winAmount = 0
+    for k, v in pairs(bets) do
+        if (k == result) then
+            winAmount = winAmount + v * 36
+        end
+        if (k == 0 and result == 0) then
+            winAmount = winAmount + v * 36
+        end
+        if ((k == 37 and result % 2 == 0) or (k == 38 and result % 2 == 1)) then
+            winAmount = winAmount + v * 2
+        end
+        if ((k == 39 and result > 0 and result < 19) or (k == 40 and result > 18 and result < 37)) then
+            winAmount = winAmount + v * 2
+        end
+        if (k == 41 and result > 0 and result < 13) then
+            winAmount = winAmount + v * 3
+        end
+        if (k == 42 and result > 12 and result < 25) then
+            winAmount = winAmount + v * 3
+        end
+        if (k == 43 and result > 24 and result < 37) then
+            winAmount = winAmount + v * 3
+        end
+    end
+    message("Выпало " .. result .. " " .. getNumberPostfix(result) .. ". Вы выиграли " .. winAmount)
+    if winAmount > 0 then
+        casino.giveMoney(winAmount)
+    end
+    os.sleep(3)
 end
-
-main()
