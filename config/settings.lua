@@ -2,7 +2,7 @@ local settings = {}
 
 settings.REPOSITORY = "https://raw.githubusercontent.com/sabodosh/laflamme/master"
 settings.TITLE = "Приветствуем ваc у нас в казино"
-settings.ADMINS = { "Krobys" }
+settings.ADMINS = { "sabodoshsasha", "HopyGold" }
 
 -- CHEST - Взаимодействие сундука и МЕ сети
 -- PIM - Взаимодействие PIM и МЕ сети
