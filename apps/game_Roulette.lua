@@ -12,8 +12,6 @@ local bets = {}
 
 local consoleLines = { "", "", "", "", "", "", "", "", "" }
 
-local MAX_BET = 10
-
 local function message(msg)
     table.remove(consoleLines, 1)
     table.insert(consoleLines, msg)
@@ -171,26 +169,60 @@ while true do
                 end
             end
             if (fixClicks(left, top)) then
-                if (clickType == 0) then
-                    placeBet(getNumberClick(left, top), money)
-                elseif (clickType == 1) then
-                    placeBetByTable(red, money)
-                elseif (clickType == 2) then
-                    placeBetByTable(black, money)
+                local payed, reason = casino.takeMoney(money)
+                if payed then
+                    ready = true
+                    if (left > 18) and (left < 102) and (top > 1) and (top < 13) then
+                        number = getNumberClick(left, top)
+                    elseif (left == 15) or (left == 103) then
+                        number = 0
+                    elseif (left == 32) then
+                        placeBetByTable(red, money)
+                    elseif (left == 46) then
+                        placeBetByTable(black, money)
+                    elseif (left == 60) then
+                        placeBetByTable({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, money)
+                    elseif (left == 74) then
+                        placeBetByTable({13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24}, money)
+                    elseif (left == 88) then
+                        placeBetByTable({25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36}, money)
+                    elseif (left == 102) then
+                        placeBetByTable({1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36}, money)
+                    elseif (left == 106) then
+                        placeBetByTable({2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35}, money)
+                    elseif (left == 110) then
+                        placeBetByTable({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18}, money)
+                    elseif (left == 91) then
+                        placeBetByTable({19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36}, money)
+                    elseif (left == 75) then
+                        for i = 1, 37 do
+                            placeBet(i - 1, money)
+                        end
+                    end
+                    bets[number] = bets[number] + money
+                    message("Вы поставили " .. money .. "$ на " .. (number == 0 and "0" or number) .. " " .. getNumberPostfix(number))
+                else
+                    message("Недостаточно денег: " .. reason)
                 end
-                ready = true
+            else
+                message("Кажется, это место нельзя выбрать")
             end
         end
     end
-    local result = Roll()
+    local number = Roll()
+    message("Выпало " .. (number == 0 and "0" or number) .. " " .. getNumberPostfix(number))
     for i = 0, 36 do
         if (bets[i] > 0) then
-            if (result == i) then
-                message("Вы выиграли " .. tostring(bets[i] * 36))
-            else
-                message("Вы проиграли " .. tostring(bets[i]))
+            if (number == 0) and (i == 0) then
+                casino.giveMoney(bets[i] * 36 + bets[i])
+                message("Вы выиграли " .. bets[i] * 36 .. "$")
+            elseif (number ~= 0) and (i == number) then
+                casino.giveMoney(bets[i] * 36 + bets[i])
+                message("Вы выиграли " .. bets[i] * 36 .. "$")
+            elseif ((number == 0) and (i ~= 0)) or ((number ~= 0) and (i ~= number)) then
+                casino.takeMoney(bets[i])
             end
         end
     end
-    os.sleep(3)
+    ready = false
 end
