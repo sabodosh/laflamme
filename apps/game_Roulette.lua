@@ -47,8 +47,8 @@ local function drawStatic()
     buffer.setResolution(112, 32)
     buffer.clear(0xffffff)
     buffer.drawText(103, 14, 0x000000, "Ставки:")
-    buffer.drawText(103, 15, 0x000000, "ЛКМ 1$")
-    buffer.drawText(103, 16, 0x000000, "ПКМ " .. maxBet .. "$") -- Обновленная максимальная ставка
+    buffer.drawText(103, 15, 0x000000, "ЛКМ 1")
+    buffer.drawText(103, 16, 0x000000, "ПКМ 10 " .. maxBet .. "$") -- Обновленная максимальная ставка
     -- Остальной статический интерфейс...
 end
 
