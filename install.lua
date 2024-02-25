@@ -1,4 +1,4 @@
-local REPOSITORY = "https://raw.githubusercontent.com/Krobys/casi/master"
+local REPOSITORY = "https://raw.githubusercontent.com/sabodosh/laflamme/master"
 
 local shell = require("shell")
 shell.execute("wget -fq " .. REPOSITORY .. "/launcher.lua /home/1.lua")
