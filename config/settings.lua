@@ -1,6 +1,6 @@
 local settings = {}
 
-settings.REPOSITORY = "https://raw.githubusercontent.com/Krobys/casi/master"
+settings.REPOSITORY = "https://raw.githubusercontent.com/sabodosh/laflamme/master"
 settings.TITLE = "Приветствуем ваc у нас в казино"
 settings.ADMINS = { "Krobys" }
 
@@ -9,7 +9,7 @@ settings.ADMINS = { "Krobys" }
 -- CRYSTAL - Взаимодействие кристального сундука и алмазного сундука
 -- CRYSTAL_ME - Взаимодействие кристального сундука и МЕ сети
 -- DEV - Оплата не взимается, награда не выдается, не требует внешних компонентов
-settings.PAYMENT_METHOD = "CRYSTAL_ME"
+settings.PAYMENT_METHOD = "PIM"
 settings.CONTAINER_PAY = "DOWN"
 settings.CONTAINER_GAIN = "UP"
 
