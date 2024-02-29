@@ -75,126 +75,220 @@ local function drawStatic()
     buffer.drawRectangle(75, 25, 36, 3,  0x34a513, 0xffffff, ' ')
     buffer.drawRectangle(47, 18, 13, 3,  0xff0000, 0xffffff, ' ')
     buffer.drawRectangle(3,  2,  8,  19, 0xffb109, 0xffffff, ' ')
-    buffer.drawRectangle(3,  22, 71, 10, 0xaaaaaa, 0xffffff, ' ')
-    buffer.drawRectangle(3,  23, 71, 9,  0x002f15, 0xffffff, " ")
-    buffer.drawRectangle(75, 22, 36, 1,  0xaaaaaa, 0xffffff, ' ')
-    buffer.drawRectangle(75, 23, 36, 1,  0x002f15, 0xffffff, ' ')
-    buffer.drawText(89, 26, 0xffffff, "Крутить")
-    buffer.drawText(90, 30, 0xffffff, "Выход")
-    buffer.drawText(50, 19, 0xffffff, "Красное")
-    buffer.drawText(64, 19, 0xffffff, "Чёрное")
-    buffer.drawText(4,  22, 0x000000, "Вывод:")
-    buffer.drawText(76, 22, 0x000000, "Текущая валюта:")
-    buffer.drawText(76, 23, 0xffffff, casino.getCurrency().name or "")
+    buffer.drawRectangle(3,  21, 8,  10, 0xff0000, 0xffffff, ' ')
+    buffer.drawText(4, 22, 0xffffff, "К")
+    buffer.drawText(5, 23, 0xffffff, "А")
+    buffer.drawText(6, 24, 0xffffff, "З")
+    buffer.drawText(4, 25, 0xffffff, "И")
+    buffer.drawText(5, 26, 0xffffff, "Н")
+    buffer.drawText(6, 27, 0xffffff, "О")
+end
+
+local function drawStaticNoNumbers()
+    buffer.drawRectangle(3, 2, 8, 19, 0xffb109, 0xffffff, ' ')
+    buffer.drawRectangle(3, 21, 8, 10, 0xff0000, 0xffffff, ' ')
+    buffer.drawText(4, 22, 0xffffff, "К")
+    buffer.drawText(5, 23, 0xffffff, "А")
+    buffer.drawText(6, 24, 0xffffff, "З")
+    buffer.drawText(4, 25, 0xffffff, "И")
+    buffer.drawText(5, 26, 0xffffff, "Н")
+    buffer.drawText(6, 27, 0xffffff, "О")
+end
+
+local function drawCell(i, bet)
+    if (i == 0) then
+        buffer.drawRectangle(14, 8, 3, 3, 0xffffff, 0x000000, ' ')
+        return
+    end
+    local color = values[i] == 'r' and 0xff0000 or values[i] == 'b' and 0x000000 or 0x00ff00
+    buffer.drawRectangle(19 + math.floor((i - 1) / 3) * 7, 2 + ((3 - i) % 3 * 4), 6, 3, color, 0xffffff, ' ')
+    if (bet) then
+        buffer.drawText(21 + math.floor((i - 1) / 3) * 7, 3 + ((3 - i) % 3 * 4), 0x000000, tostring(bet))
+    end
+end
+
+local function drawBoard()
+    buffer.drawChanges()
+    buffer.drawRectangle(103, 20, 9, 3, 0x34a513, 0xffffff, ' ')
+    buffer.drawRectangle(103, 24, 9, 3, 0x34a513, 0xffffff, ' ')
+    buffer.drawText(106, 21, 0xffffff, tostring(casino.stack))
+    buffer.drawText(106, 25, 0xffffff, tostring(casino.stack10))
+    buffer.drawText(103, 20, 0xffffff, "Стек:")
+    buffer.drawText(103, 24, 0xffffff, "Стек:")
+    buffer.drawRectangle(103, 29, 9, 3, 0x34a513, 0xffffff, ' ')
+    buffer.drawRectangle(103, 28, 9, 1, 0x34a513, 0xffffff, ' ')
+    buffer.drawText(106, 30, 0xffffff, "Пуск")
     buffer.drawChanges()
 end
 
-local function Roll()
-    local current = math.random(1, 35)
-    for i = 1, math.random(30, 50) do
-        current = current + 1
-        if (current == 38) then
-            current = 1
-        end
-        drawNumber(4, 2, wheel[current + 4])
-        drawNumber(4, 6, wheel[current + 3])
-        drawNumber(4, 10, wheel[current + 2])
-        drawNumber(4, 14, wheel[current + 1])
-        drawNumber(4, 18, wheel[current])
-        buffer.drawChanges()
-        os.sleep(i / 140)
+local function getBetArea(x, y)
+    if (x >= 19 and x <= 25 and y >= 2 and y <= 4) then
+        return (3 - math.floor((y - 2) / 4)) * 3 - math.floor((25 - x) / 7)
     end
-    return wheel[current + 2]
+    if (x >= 19 and x <= 25 and y >= 6 and y <= 8) then
+        return 3 - math.floor((25 - x) / 7) + (3 - math.floor((y - 6) / 4)) * 3
+    end
+    if (x >= 19 and x <= 25 and y >= 10 and y <= 12) then
+        return 3 - math.floor((25 - x) / 7) + (3 - math.floor((y - 10) / 4)) * 3 + 1
+    end
+    if (x >= 19 and x <= 45 and y >= 14 and y <= 16) then
+        return math.floor((x - 19) / 7) * 3 + 19 - (2 - math.floor((y - 14) / 2))
+    end
+    if (x >= 47 and x <= 73 and y >= 14 and y <= 16) then
+        return math.floor((x - 47) / 7) * 3 + 20 + (2 - math.floor((y - 14) / 2))
+    end
+    if (x >= 75 and x <= 101 and y >= 14 and y <= 16) then
+        return math.floor((x - 75) / 7) * 3 + 20 + (2 - math.floor((y - 14) / 2)) + 12
+    end
+    if (x >= 19 and x <= 31 and y >= 18 and y <= 20) then
+        return math.floor((x - 19) / 7) * 3 + 73
+    end
+    if (x >= 33 and x <= 45 and y >= 18 and y <= 20) then
+        return math.floor((x - 33) / 7) * 3 + 74
+    end
+    if (x >= 47 and x <= 59 and y >= 18 and y <= 20) then
+        return math.floor((x - 47) / 7) * 3 + 75
+    end
+    if (x >= 75 and x <= 87 and y >= 18 and y <= 20) then
+        return math.floor((x - 75) / 7) * 3 + 76
+    end
+    if (x >= 89 and x <= 101 and y >= 18 and y <= 20) then
+        return math.floor((x - 89) / 7) * 3 + 77
+    end
+    if (x >= 75 and x <= 110 and y >= 25 and y <= 27) then
+        return 88
+    end
+    if (x >= 75 and x <= 110 and y >= 29 and y <= 31) then
+        return 89
+    end
+    if (x >= 103 and x <= 111 and y >= 28 and y <= 31) then
+        return 90
+    end
+    return -1
 end
 
-local function getNumberClick(left, top)
-    if (top == 5) or (top == 9) or (left % 7 == 4) then
-        return 0
+local function drawTable()
+    buffer.setResolution(112, 32)
+    buffer.clear(0xffffff)
+    drawStatic()
+    for i, v in pairs(bets) do
+        drawCell(i, v)
     end
-    return (math.floor((left - 18) / 7) * 3) + math.floor(4 - (top - 1) / 4)
+    drawBoard()
 end
 
-local function resetBets()
+local function clearBet(i)
+    if (i > 0 and i <= 90 and (i <= 88 or i == 90)) then
+        bets[i] = nil
+        drawCell(i)
+        drawBoard()
+        return true
+    end
+    return false
+end
+
+local function clearBets()
     bets = {}
-    for i = 0, 36 do
-        bets[i] = 0
-    end
+    drawTable()
 end
 
-local function placeBet(number, money)
-    if (bets[number] == nil) then
-        bets[number] = money
+local function setBet(i, stack)
+    if (i > 0 and i <= 90 and (i <= 88 or i == 90)) then
+        bets[i] = (bets[i] or 0) + stack
+        drawCell(i, bets[i])
+        drawBoard()
+        return true
+    end
+    return false
+end
+
+local function spin()
+    casino.spin()
+    local roll = casino.result
+    local cell = 0
+    for i, v in ipairs(wheel) do
+        if (v == roll) then
+            cell = i
+            break
+        end
+    end
+    message("Выпало число " .. roll .. " " .. getNumberPostfix(roll))
+    for i, v in pairs(bets) do
+        if (i == 0 and roll == 0) then
+            casino.pay(i, v, 36)
+        elseif (i > 0 and i <= 36 and roll == i) then
+            casino.pay(i, v, 36)
+        elseif (i == 37 and roll > 0 and roll <= 18) then
+            casino.pay(i, v, 2)
+        elseif (i == 38 and roll % 2 == 0 and roll > 0 and roll <= 36) then
+            casino.pay(i, v, 2)
+        elseif (i == 39 and roll % 2 == 1 and roll > 0 and roll <= 36) then
+            casino.pay(i, v, 2)
+        elseif (i == 40 and roll > 18 and roll <= 36) then
+            casino.pay(i, v, 2)
+        elseif (i == 41 and roll <= 12) then
+            casino.pay(i, v, 3)
+        elseif (i == 42 and roll > 12 and roll <= 24) then
+            casino.pay(i, v, 3)
+        elseif (i == 43 and roll > 24) then
+            casino.pay(i, v, 3)
+        end
+    end
+    clearBets()
+end
+
+local function addBet(x, y, stack)
+    local i = getBetArea(x, y)
+    if (i >= 0) then
+        if (stack > 0) then
+            if (stack > 10 and not casino.stack10) then
+                message("Ставки выше 10$ недоступны.")
+                return
+            end
+            if (stack > 1 and not casino.stack) then
+                message("Ставки выше 1$ недоступны.")
+                return
+            end
+            if (setBet(i, stack)) then
+                message("Ставка на ячейку " .. tostring(i) .. " в размере " .. tostring(stack) .. "$")
+            end
+        elseif (stack < 0) then
+            if (clearBet(i)) then
+                message("Ставка на ячейку " .. tostring(i) .. " снята")
+            end
+        end
     else
-        bets[number] = bets[number] + money
+        message("Указанная область не является ячейкой ставки.")
     end
 end
 
-local function placeBetByTable(t, money)
-    for i = 1, #t do
-        placeBet(t[i], money)
+local function processClick(eventType, _, x, y)
+    if (eventType == "touch" or eventType == "drag") then
+        if (x >= 103 and x <= 111 and y >= 28 and y <= 31) then
+            spin()
+            return
+        end
+        local stack = 1
+        if (eventType == "drag") then
+            if (y < 21) then
+                return
+            end
+            stack = 10
+        end
+        addBet(x, y, stack)
+    elseif (eventType == "scroll") then
+        addBet(x, y, -event[5])
     end
 end
 
-local function fixClicks(left, top)
-    return not (
-        (left < 13) or (top < 2) or (left > 111) or (top > 20) or (left < 19 and top > 12) or (left == 18) or (left == 46) or (left == 102) or 
-        (top == 12) or (top == 17) or (((left > 18) and (left < 102) and (top > 1) and (top < 13)) and getNumberClick(left, top) == 0) or 
-        (top > 17 and top < 21 and (left == 32 or left == 46 or left == 60 or left == 74 or left == 88)) or (left > 101 and top > 12) or 
-        (left > 102 and (top == 5 or top == 9)))
-end
+buffer.start()
+drawStaticNoNumbers()
+drawBoard()
 
-drawStatic()
-message("")
+event.listen("touch", processClick)
+event.listen("drag", processClick)
+event.listen("scroll", processClick)
+
 while true do
-    resetBets()
-    local ready = false
-    while true do
-        local e, _, left, top, clickType, _ = event.pull("touch")
-        if (e ~= nil) then
-            local number, money = 0, 1 + clickType * 9
-            if left >= 75 and left <= 110 and top >= 29 and top <= 31 then
-                if ready then
-                    message("Сначала завершите игру")
-                else
-                    error("Exit by request")
-                end
-            end
-            if left >= 75 and left <= 110 and top >= 25 and top <= 27 then
-                if ready then
-                    break
-                else
-                    message("Недоступно до первой ставки")
-                end
-            end
-            if (fixClicks(left, top)) then
-                local payed, reason = casino.takeMoney(money)
-                if payed then
-                    ready = true
-                    if (left > 18) and (left < 102) and (top > 1) and (top < 13) then
-                        number = getNumberClick(left, top)
-                    end
-                    if number > 0 then
-                        placeBet(number, money * 36)
-                        message("Вы поставили " .. money .. " на " .. number)
-                    elseif (left > 12) and (left < 18) and (top > 1) and (top < 13) then
-                        message("Вы поставили " .. money .. " на 0")
-                        placeBet(0, money * 36)
-                    elseif (left > 18) and (left < 46) and (top > 13) and (top < 17) then
-                        message("Вы поставили " .. money .. " на первую 12")
-                        money = money * 3
-                        for i = 1, 12 do
-                            placeBet(i, money)
-                        end
-                    elseif (left > 46) and (left < 74) and (top > 13) and (top < 17) then
-                        message("Вы поставили " .. money .. " на вторую 12")
-                        money = money * 3
-                        for i = 13, 24 do
-                            placeBet(i, money)
-                        end
-                    elseif (left > 74) and (left < 102) and (top > 13) and (top < 17) then
-                        message("Вы поставили " .. money .. " на третью 12")
-                        money = money * 3
-                        for i = 25, 36 do
-                            placeBet(i, money)
-                        end
-                    elseif (left > 18) and (left < 32)
+    os.sleep(0.1)
+end
