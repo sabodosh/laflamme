@@ -169,7 +169,7 @@ while true do
                 end
             end
             if (fixClicks(left, top)) then
-                local payed, reason = casino.takeMoney(money)
+                local payed, reason = casino.takeMoney(math.min(money, 10))
                 if payed then
                     ready = true
                     if (left > 18) and (left < 102) and (top > 1) and (top < 13) then
