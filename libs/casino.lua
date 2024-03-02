@@ -16,7 +16,6 @@ local CURRENCY = {
 
 local currentBetSize = 0
 
-
 casino.container = nil
 local containerSize = 0
 
@@ -86,14 +85,14 @@ else
     end
 end
 
-
 casino.takeMoney = function(money)
     if not CURRENCY.id or settings.PAYMENT_METHOD == 'DEV' then
         return true
     end
 
+    -- Проверяем, не превышает ли текущая ставка максимальную ставку
     if CURRENCY.max and currentBetSize + money > CURRENCY.max then
-        return false, "Превышен максимум"
+        return false, "Превышен максимум ставки"
     end
 
     local sum = 0
