@@ -1,16 +1,6 @@
 local games = {}
 
 
-
-table.insert(games, {
-    title = 'Магазин',
-    file = "app_Shop.lua",
-    available = false,
-    image = "app_Shop.pic",
-    author = "krovyaka",
-    description = "Скоро тут будет магазин :)"
-})
-
 table.insert(games, {
     title = "Рулетка",
     file = "game_Roulette.lua",
@@ -62,7 +52,7 @@ table.insert(games, {
     file = "game_Video_poker.lua",
     available = true,
     image = "game_Video_poker.pic",
-    author = "Durex77",
+    author = "",
     description = "Видеопокер — игра казино, основанная на правилах\n" ..
             "пятикарточного покера с обменом. Игра ведется на\n" ..
             "компьютеризированной консоли с экраном или через интернет\n \n" ..
